@@ -1,0 +1,79 @@
+python .\agent.py
+🤖 Starting AI Security Agent...
+🔍 Scanning AWS environment...
+Found 3 potential issues
+🧠 AI is analyzing findings...
+# AWS Security Analysis Report
+
+## 🚨 Risk Summary
+You have **2 S3 buckets with CRITICAL security vulnerabilities** allowing public write access. This means anyone on the internet can upload, modify, or delete files in these buckets.
+
+## 🎯 Why This Is Dangerous
+
+### Public Write Access Risks:
+- **Data Breach**: Attackers can overwrite or delete your critical data
+- **Malware Hosting**: Your buckets can be used to host malicious files
+- **Billing Attacks**: Attackers can upload massive amounts of data, causing huge AWS bills
+- **Legal Issues**: Your infrastructure could be used for illegal content distribution
+- **Compliance Violations**: Violates most security frameworks (SOC 2, PCI-DSS, etc.)
+
+## 🔧 How to Fix Each Issue
+
+### 1. Bucket: `cdk-hnb659fds-assets-615299732666-us-west-2`
+**This appears to be a CDK assets bucket**
+
+**Immediate Action:**
+```bash
+# Remove public write permissions via AWS CLI
+aws s3api put-bucket-policy --bucket cdk-hnb659fds-assets-615299732666-us-west-2 --policy '{
+  "Version": "2012-10-17",
+  "Statement": []
+}'
+```
+
+**Long-term Fix:**
+- Review your CDK deployment configuration
+- Ensure CDK bootstrap doesn't create public buckets
+- Re-deploy with proper private bucket policies
+
+### 2. Bucket: `my-test-vulnerable-bucket-12345`
+
+**Immediate Action:**
+```bash
+# Remove public write permissions
+aws s3api delete-bucket-policy --bucket my-test-vulnerable-bucket-12345
+
+# Add block public access settings
+aws s3api put-public-access-block --bucket my-test-vulnerable-bucket-12345 --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
+**If you need controlled access:**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::YOUR-ACCOUNT:root"},
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::my-test-vulnerable-bucket-12345/*"]
+    }
+  ]
+}
+```
+
+## ✅ Verification Steps
+1. Run: `aws s3api get-bucket-policy --bucket BUCKET-NAME`
+2. Confirm no public write permissions exist
+3. Test access from an external account to verify restrictions
+
+## 🛡️ Prevention
+- Enable AWS Config rules to detect public buckets
+- Set up CloudTrail to monitor bucket policy changes
+- Use AWS Security Hub for ongoing monitoring
+- Never use `"Principal": "*"` with write actions
+
+**Fix these immediately** - public write access is one of the most dangerous AWS misconfigurations.
+📧 Sending email alert...
+❌ Error sending email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-354b30186f8sm2061244a91.1 - gsmtp')
+✅ Agent completed successfully!
