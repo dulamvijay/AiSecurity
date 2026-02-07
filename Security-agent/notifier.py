@@ -16,7 +16,7 @@ class EmailNotifier:
         message = MIMEMultipart()
         message["From"] = sender_email
         message["To"] = receiver_email
-        message["Subject"] = "🚨 AWS Security Alert from Your AI Agent"
+        message["Subject"] = "AWS Security Alert from Your AI Agent"
         
         # Email body
         body = f"""
@@ -25,7 +25,7 @@ class EmailNotifier:
         {analysis_report}
         
         ---
-        Automated by your AI Security Agent 🤖
+        Automated by your AI Security Agent
         """
         
         message.attach(MIMEText(body, "plain"))
@@ -35,6 +35,7 @@ class EmailNotifier:
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                 server.login(sender_email, sender_password)
                 server.send_message(message)
-            print("✅ Email sent successfully!")
+            print("Email sent successfully!")
         except Exception as e:
-            print(f"❌ Error sending email: {e}")
+
+            print(f"Error sending email: {e}")
